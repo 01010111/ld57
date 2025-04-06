@@ -1,5 +1,7 @@
 package states;
 
+import objects.ColorBubble;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import zero.utilities.Vec2;
 import fx.Bubble;
 import zero.flixel.ec.ParticleEmitter;
@@ -13,8 +15,10 @@ var i:PlayState;
 
 class PlayState extends FlxState {
 
-	public var bubbles:ParticleEmitter = new ParticleEmitter(() -> new Bubble());
+	public var coin:Coin;
 
+	public var color_bubbles:FlxTypedGroup<ColorBubble> = new FlxTypedGroup();
+	public var bubbles:ParticleEmitter = new ParticleEmitter(() -> new Bubble());
 	var bubble_timer:Float = 1.5;
 
 	override function create() {
@@ -26,19 +30,26 @@ class PlayState extends FlxState {
 		backdrop.x = 96;
 		add(backdrop);
 
-		var coin = new Coin(181, 0);
+		coin = new Coin(181, 0);
 		add(coin);
 
 		add(bubbles);
+		add(color_bubbles);
 
 		var dolly = new Dolly({ target: coin });
 		dolly.add_component(new CoinFollower());
 		add(dolly);
+
+		coin.y -= FlxG.height/2;
 	}
 
 	override function update(dt:Float) {
 		super.update(dt);
 		bubble_spawning(dt);
+		FlxG.overlap(color_bubbles, coin, (b:ColorBubble, c:Coin) -> {
+			if (b.available) b.get(c);
+		});
+		FlxG.worldBounds.y = camera.scroll.y;
 	}
 
 	function bubble_spawning(dt:Float) {
@@ -52,6 +63,7 @@ class PlayState extends FlxState {
 			v2.angle += 360 / n;
 			bubbles.fire({ position: FlxPoint.get(v1.x + v2.x, v1.y + v2.y) });
 		}
+		GET_COLOR_BUBBLE(v1.x, v1.y);
 		v1.put();
 		v2.put();
 	}

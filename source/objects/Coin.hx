@@ -108,11 +108,14 @@ class Coin extends GameObject {
 	}
 
 	public function set_cur_face_state(state:FaceState) {
-		var is_face = Math.round(current_frame) % 8 != 0;
-		if (!is_face) return false;
-		if (current_frame < 8) set_face_states(state, tails_state);
+		if ((current_frame % 16) < 8) set_face_states(state, tails_state);
 		else set_face_states(heads_state, state);
-		return true;
+	}
+
+	public function get_face_status() {
+		if (Math.round(current_frame) % 8 == 0) return EDGE;
+		if ((current_frame % 16) < 8) return HEADS;
+		return TAILS;
 	}
 
 	function set_face_states(heads:FaceState, tails:FaceState) {
@@ -129,7 +132,11 @@ class Coin extends GameObject {
 			case RED:frame_arr.concat(COIN_FRAMES_TAILS_RED);
 			case BLUE:frame_arr.concat(COIN_FRAMES_TAILS_BLUE);
 		}
-		trace(frame_arr);
+	}
+
+	public function bounce() {
+		velocity.y = -128;
+		target_frame += 16;
 	}
 
 }
@@ -138,4 +145,10 @@ enum FaceState {
 	NEUTRAL;
 	RED;
 	BLUE;
+}
+
+enum FaceStatus {
+	HEADS;
+	TAILS;
+	EDGE;
 }
