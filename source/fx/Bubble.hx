@@ -20,6 +20,7 @@ class Bubble extends Particle {
 		this.make_and_center_hitbox(0, 0);
 		add_component(kill_timer = new KillAfterTimer());
 		drag.x = 500;
+		acceleration.y = -COIN_GRAVITY/2;
 	}
 
 	override function fire(options:FireOptions) {
@@ -28,8 +29,11 @@ class Bubble extends Particle {
 		kill_timer.reset(10);
 		scale.set();
 		FlxTween.tween(scale, { x: 1, y: 1 }, 0.25, { ease: FlxEase.backOut });
-		if (options.util_amount != null) velocity.x = options.util_amount * 10;
-		velocity.y = -48.get_random(24);
+		if (options.util_amount != null) {
+			velocity.x = options.util_amount * 10;
+			velocity.y = options.util_amount * 5;
+		}
+		maxVelocity.y = 48.get_random(24);
 	}
 
 }

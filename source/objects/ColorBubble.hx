@@ -61,6 +61,11 @@ class ColorBubble extends GameObject {
 		}
 	}
 
+	override function kill() {
+		for (i in 0...4) PLAYSTATE.bubbles.fire({ position: getMidpoint(), util_amount: 12.get_random(-12) });
+		super.kill();
+	}
+
 }
 
 enum BubbleState {

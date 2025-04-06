@@ -102,7 +102,7 @@ class Coin extends GameObject {
 	function throw_bubbles(dt:Float) {
 		var time_mult = COIN_BUBBLE_EMIT_DT[Math.round(current_frame) % 8];
 		if ((bubble_timer -= dt * time_mult) > 0) return;
-		bubble_timer = 0.2.get_random(0.1);
+		bubble_timer = 0.3.get_random(0.2);
 		var bubble_x_offset = (width/2).get_random(-width/2);
 		PLAYSTATE.bubbles.fire({ position: getMidpoint().add(bubble_x_offset, 4), util_amount: bubble_x_offset });
 	}
@@ -110,6 +110,7 @@ class Coin extends GameObject {
 	public function set_cur_face_state(state:FaceState) {
 		if ((current_frame % 16) < 8) set_face_states(state, tails_state);
 		else set_face_states(heads_state, state);
+		fire_puffs(state);
 	}
 
 	public function get_face_status() {
@@ -119,8 +120,8 @@ class Coin extends GameObject {
 	}
 
 	function set_face_states(heads:FaceState, tails:FaceState) {
-		heads_state = heads;
-		tails_state = tails;
+		if (heads_state != heads) heads_state = heads;
+		if (tails_state != tails) tails_state = tails;
 		frame_arr = [];
 		frame_arr = switch heads {
 			case NEUTRAL:frame_arr.concat(COIN_FRAMES_HEADS_NEUTRAL);
@@ -137,6 +138,21 @@ class Coin extends GameObject {
 	public function bounce() {
 		velocity.y = -128;
 		target_frame += 16;
+	}
+
+	function fire_puffs(state:FaceState) {
+		var v = new FlxPoint(128);
+		var c = switch state {
+			case NEUTRAL:0xFF00FF00;
+			case RED:0xFFa2324e;
+			case BLUE:0xFF467bc6;
+		}
+		var n = 5;
+		for (i in 0...n) {
+			v.degrees = i * 360/n + 45.get_random(-45);
+			PLAYSTATE.fg_puffs.fire({ position: getMidpoint(), velocity: new FlxPoint(v.x, v.y + velocity.y/2), util_color: c });
+		}
+		v.put();
 	}
 
 }
